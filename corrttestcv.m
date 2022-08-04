@@ -32,4 +32,6 @@ df = k*r;
 n = (1/(df))*sum(d(:)); % this amounts to the mean...
 s = (1/(df-1))*sum((d(:)-n).^2); % variance...
 t = sqrt(((1/(k*r))+(mean(c.TrainSize)/mean(c.TestSize)))*s);
-p = 1-tcdf(t,df-1);
+%p = 1-tcdf(t,df-1);
+ttop = @(t,df) (1-betainc(df/(df+t^2),df/2,0.5));
+p = 1-ttop(t,df);
