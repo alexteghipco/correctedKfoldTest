@@ -30,5 +30,5 @@ for i = 1:k
 end
 n = (1/(k*r))*sum(d(:)); % this amounts to the mean...
 s = (1/(k*(r-1)))*sum((d(:)-n).^2); % variance...
-t = sqrt((kr+(mean(c.TrainSize)/mean(c.TestSize)))*s);
+t = sqrt(((1/(k*r))+(mean(c.TrainSize)/mean(c.TestSize)))*s);
 p = 1-tcdf(t,n-1);
