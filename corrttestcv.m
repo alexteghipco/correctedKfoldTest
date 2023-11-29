@@ -20,18 +20,25 @@ function [t,p] = corrttestcv(yhat1,yhat2,c)
 %
 % alex.teghipco@sc.edu
 
-k = c.NumTestSets;
+k = c{1}.NumTestSets;
 r = size(yhat1,2);
+d = zeros(k, r); % Preallocate matrix for differences
 
 for i = 1:k
     for j = 1:r
-        d(i,j) = yhat1(test(c,i),j)-yhat2(test(c,i),j);
+        test_indices = test(c{j}, i); % Indices of test samples for fold i
+        differences = yhat1(test_indices, j) - yhat2(test_indices, j); % Differences for all samples in the fold
+        d(i, j) = mean(differences); % Mean difference for fold i and run j
     end
 end
-df = k*r;
-n = (1/(df))*sum(d(:)); % this amounts to the mean...
-s = (1/(df-1))*sum((d(:)-n).^2); % variance...
-t = sqrt(((1/(k*r))+(mean(c.TrainSize)/mean(c.TestSize)))*s);
-%p = 1-tcdf(t,df-1);
-ttop = @(t,df) (1-betainc(df/(df+t^2),df/2,0.5));
-p = 1-ttop(t,df);
+
+df = k*r - 1; % Degrees of freedom
+n = mean(d(:)); % Mean of differences
+s = var(d(:), 1); % Variance of differences, 1 for N normalization
+
+% Corrected test statistic
+corrected_variance = ((1/(k*r)) + (mean(c{j}.TestSize)/mean(c{j}.TrainSize))) * s;
+t = n / sqrt(corrected_variance);
+
+% P-value calculation
+p = 1 - tcdf(t, df);
